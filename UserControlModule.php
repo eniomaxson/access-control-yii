@@ -4,6 +4,7 @@ class User_controlModule extends CWebModule
 {
 	private $table_user;
 	private $user_primary_key;
+	private $user_model;
 	private $install;
 
 	public function init()
@@ -32,14 +33,15 @@ class User_controlModule extends CWebModule
 	}
 	# create tables used in this module
 	private function create_db(){
+		$sql_path = $this->getBasePath();
 
 		$connection = Yii::app()->db;
 
 		if ($connection->getDriverName() == 'mysql')
-			$file_sql = file_get_contents('data/mysql');
+			$file_sql = file_get_contents($sql_path . '/data/mysql');
 		
 		if($connection->getDriverName() == 'pgsql')
-			$file_sql = file_get_contents('data/pgsql');
+			$file_sql = file_get_contents($sql_path .'/data/pgsql');
 
 		$file_sql = str_replace('{table_user}',$this->table_user, $file_sql);
 
@@ -73,4 +75,15 @@ class User_controlModule extends CWebModule
 	{
 		return $this->user_primary_key;
 	}
+	public function get_user_model()
+	{
+		return $this->user_model;
+	}
+	
+	# responsable method for validate one user for one resource
+
+	public function authorize($user_id, $resource_key)
+    {
+        return Resource::model()->authorize($user_id, $resource_key);
+    }
 }

@@ -2,13 +2,6 @@
 
 class DefaultController extends Controller
 {
-	protected function authorize($resource_key)
-    {
-        if (!Resource::model()->authorize(Yii::app()->user->id, $resource_key))
-        {
-            throw new CHttpException(403, 'Você não possui permissão para executar esse recurso! Duvidas contate o administrador do sistema.');
-        }
-    }
 
     public function actionIndex()
     {
@@ -16,7 +9,6 @@ class DefaultController extends Controller
         $model = new Profile;
         $this->render('index', array('model' => $model));
     }
-
 
     #actionNovoPerfil
     public function actionNewProfile()

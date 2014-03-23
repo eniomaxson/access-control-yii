@@ -2,15 +2,9 @@
 
 class Resource extends CActiveRecord
 {
-
-    private $_profile_id;
-    private $_resources;
-
     private final $key = array(
         'cadastro_cliente' => 1,
-        'cadastro_motorista' => 2,
-        'cadastro_veiculo' => 3,
-        );
+    );
     
     public function getKey($index)
     {
@@ -139,11 +133,11 @@ class Resource extends CActiveRecord
             $connection = Yii::app()->db;
 
             $sql = "SELECT 1 FROM {$table_user} u 
-                    INNER JOIN user_profile up ON up.user_id = u.{$user_primary_key}
-                    INNER JOIN profile p ON p.id = up.profile_id
-                    INNER JOIN profile_resource pr ON pr.profile_id = p.id
-                    INNER JOIN resource r ON r.id = pr.resource_id 
-                    WHERE u.id = :user_id AND r.key = :key";
+            INNER JOIN user_profile up ON up.user_id = u.{$user_primary_key}
+            INNER JOIN profile p ON p.id = up.profile_id
+            INNER JOIN profile_resource pr ON pr.profile_id = p.id
+            INNER JOIN resource r ON r.id = pr.resource_id 
+            WHERE u.id = :user_id AND r.key = :key";
 
             $command = $connection->createCommand($sql);
 
@@ -176,23 +170,24 @@ class Resource extends CActiveRecord
         Resource::model()->updateByPk($resource_id, array('public' => 0));
     }
 
-    public function add_resource_to_profile($resource_id, $profile_id){
+    public function add_resource_to_profile($resource_id, $profile_id)
+    {
         $model = new ProfileResource();
         $model->attributes = array('profile_id' => $profile_id, 'resource_id' => $resource_id);
         $model->save(false);
     }
 
-    public function remove_resource_from_profile($resource_id, $profile_id){
-        Resource::model()->deleteAll(
-            'profile_id = :profile_id and resource_id = :resource_id',
-            array(':profile_id' => (Int) $profile_id, ':resource_id' => (Int) $resource_id )
-        );
+    public function remove_resource_from_profile($resource_id, $profile_id)
+    {    
+        $deleted = ProfileResource::model()->deleteAll('profile_id = :profile_id and resource_id = :resource_id',
+            array(':profile_id' => (Int) $profile_id, ':resource_id' => (Int) $resource_id ));
+        return $deleted;
     }
 
     //validaRecursoPerfil
     public function check_resource_from_profile($profile_id, $resource_id)
     {
-        $validated = PerfilRecurso::model()->exists('profile_id=:profile_id AND resource_id=:resource_id', array(':profile_id' => $profile_id, ':resource_id' => $resource_id));
+        $validated = ProfileResource::model()->exists('profile_id=:profile_id AND resource_id=:resource_id', array(':profile_id' => $profile_id, ':resource_id' => $resource_id));
         return $validated;
     }
 }
