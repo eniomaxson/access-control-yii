@@ -1,0 +1,29 @@
+CREATE  TABLE IF NOT EXISTS profile (
+  id SERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR(45) NOT NULL
+);
+CREATE  TABLE IF NOT EXISTS resource (
+  id SERIAL PRIMARY KEY NOT NULL,
+  description VARCHAR(45) NOT NULL,
+  key INT NOT NULL,
+  title VARCHAR(60) NOT NULL,
+  url VARCHAR(45) NOT NULL,
+  public BOOLEAN NOT NULL,
+  icon VARCHAR(45) NULL,
+  category_id INT NULL,
+  FOREIGN KEY (category_id) REFERENCES resource  (id)
+);
+CREATE  TABLE IF NOT EXISTS profile_resource (
+  id SERIAL PRIMARY KEY NOT NULL  ,
+  resource_id INT NOT NULL,
+  profile_id INT NOT NULL ,
+  FOREIGN KEY (resource_id) REFERENCES resource (id),
+  FOREIGN KEY (profile_id)  REFERENCES profile (id)
+);
+CREATE  TABLE IF NOT EXISTS user_profile (
+  id SERIAL PRIMARY KEY NOT NULL  ,
+  profile_id INT NOT NULL ,
+  user_id INT NOT NULL,
+  FOREIGN KEY (profile_id) REFERENCES profile (id),
+  FOREIGN KEY (user_id) REFERENCES {table_user} ({user_primary_key})
+)
