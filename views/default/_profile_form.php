@@ -1,20 +1,25 @@
-<div id="modal-form" class="modal hide" tabindex="-1" aria-hidden="true" style="display: none;">
+<div id="modal-profile-form" class="modal <?php echo $model->id > 0 ? 'show': 'hide' ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h4 class="blue bigger">Novo perfíl</h4>
-    </div>
-    
-    <?php $form = $this->beginWidget('CActiveForm', array('id' => 'frm-profile')); ?>
+     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+     <h4 class="blue bigger">Novo perfíl</h4>
+ </div>
 
-    <div class="modal-body overflow-visible">
+ <?php $form = $this->beginWidget('CActiveForm',  array(
+    'id' => 'frm-profile',
+    'method'=>'post',
+    'action'=> $model->isNewRecord ? 
+    $this->createUrl('createProfile') :
+    $this->createUrl('updateProfile',array('id'=>$model->id)) 
+    )); ?>
+
+    <div class="modal-body">
         <div class="row-fluid">
-            <div class="vspace"></div>
             <div class="span4">
-
                 <div class="control-group">
-                    <label for="#Perfil_id">Codigo</label>
+                    <label for="#Profile_id">Codigo</label>
                     <div class="controls">
                         <?php echo $form->textField($model, 'id', array('disabled' => true, 'class' => 'input-small')); ?>
+                        <?php echo $form->hiddenField($model,'id'); ?>
                     </div>
                 </div>
 
@@ -25,57 +30,21 @@
                         <?php echo $form->textField($model, 'name', array('class' => 'input-xlarge')); ?>
                     </div>
                 </div>
+
+                <div class="control-group">
+                    <label for="#Profile_id">Importar De</label>
+                    <div class="controls">
+                        <?php echo $form->dropDownList($model,'copy_from', Chtml::listdata(Profile::model()->findAll(), 'id', 'name'),array( 'empty'=>'Selecione','class' => 'input-xlarge') ); ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-small" data-dismiss="modal" id="btn-close-modal">
-            <i class="icon-remove"></i>
-            Cancelar
-        </button>
+        <a href='<?php echo $this->createUrl('index'); ?>'class="btn" role='button' id='btn-close-profile'>Cancelar</a>
 
-        <button class="btn btn-small btn-primary" id="btn-novo-perfil">
-            <i class="icon-ok"></i>
-            Salvar
-        </button>
+        <input class="btn btn-primary" id="" type="submit" value="salvar" />
     </div>
     <?php $this->endWidget(); ?>
 </div>
-
-
-<script type="text/javascript">
-    (function($) {
-        var Perfil = {
-            btn_novo_perfil: $('#btn-novo-perfil'),
-            descricao: $('#Perfil_nome'),
-            onClickNovoPerfil: function(e)
-            {
-                e.preventDefault();
-                Perfil.ajaxNovoPerfil();
-            },
-            ajaxNovoPerfil: function()
-            {
-                $.ajax({
-                    type: 'post',
-                    url: '<?php echo $this->createUrl('create_perfil'); ?>',
-                    data: $('#frm-perfil').serialize(),
-                    error: function(data) {
-                    },
-                    beforeSend: function() {
-                    },
-                    success: function(data)
-                    {
-                        alert('Registro gravado com sucesso!');
-                        $('#btn-close-modal').trigger('click');
-                        window.location = "index";
-                    }
-                });
-            }
-
-        };
-
-        Perfil.btn_novo_perfil.on('click', Perfil.onClickNovoPerfil);
-
-    })(jQuery);
-</script>

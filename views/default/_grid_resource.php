@@ -15,10 +15,11 @@
                 <td><?php echo $resource->url; ?></td>
                 <td>
                     <?php
-                    echo CHtml::link(!empty($resource->public) ? '<label class="label label-success">Sim</label>' : '<label class="label label-warning">Não</label>', '#', array('class' => 'btn-publico'));
+
+                    echo CHtml::link(!empty(!$resource->private) ? '<label class="label label-success">Sim</label>' : '<label class="label label-warning">Não</label>', '#', array('class' => 'btn-private'));
                     ?> 
                 </td>
-                <td style="column-span:2" class="span2"> 
+                <td style="column-span2" class="span2"> 
                     <label>
                         <input type="checkbox" name='<?php echo $resource->id; ?>' <?php echo !empty($resource->public) ? 'checked' : null; ?> class="ace checkbox-recurso"><span class="lbl"></span>
                     </label> 
@@ -44,12 +45,12 @@
                 <td><?php echo $resource->url; ?></td>
                 <td>
                     <?php
-                    echo CHtml::link($resource->public ? '<label class="label label-success">Sim</label>' : '<label class="label label-success">Não</label>', '#', array('class' => 'btn-publico'));
+                     echo CHtml::link(!empty(!$resource->private) ? '<label class="label label-success">Sim</label>' : '<label class="label label-warning">Não</label>', '#', array('class' => 'btn-private'));
                     ?> 
                 </td>
                 <td style="column-span:2" class="span2"> 
                     <label>
-                        <input type="checkbox" name='<?php echo $recurso->id; ?>' <?php echo Resource::model()->check_resource_from_profile($profile->id, $resource->id) === true ? 'checked' : null; ?> class="ace checkbox-recurso"><span class="lbl"></span>
+                        <input type="checkbox" name='<?php echo $resource->id; ?>' <?php echo Resource::model()->check_resource_from_profile($profile->id, $resource->id) === true ? 'checked' : null; ?> class="ace checkbox-recurso"><span class="lbl"></span>
                     </label> 
                 </td>
             </tr>

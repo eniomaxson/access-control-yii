@@ -2,13 +2,13 @@
 
 class Resource extends CActiveRecord
 {
-    private final $key = array(
+    private  $_key = array(
         'cadastro_cliente' => 1,
     );
     
     public function getKey($index)
     {
-        return $this->key[$index];
+        return $this->_key[$index];
     }
 
     public static function model($className = __CLASS__)
@@ -24,7 +24,7 @@ class Resource extends CActiveRecord
     public function rules()
     {
         return array(
-            array('name, key, title, url, public', 'required'),
+            array('name, resource_key, title, url, public', 'required'),
             array('key, public, category_id', 'numerical', 'integerOnly' => true),
             array('name, url, icon', 'length', 'max' => 45),
             array('title', 'length', 'max' => 60),
@@ -45,7 +45,7 @@ class Resource extends CActiveRecord
         return array(
             'id' => 'ID',
             'name' => 'Nome',
-            'key' => 'Chave',
+            'resource_key' => 'Chave',
             'title' => 'Titulo',
             'url' => 'Link',
             'public' => 'Publico',
@@ -60,7 +60,7 @@ class Resource extends CActiveRecord
 
         $criteria->compare('id', $this->id);
         $criteria->compare('name', $this->name, true);
-        $criteria->compare('key', $this->key);
+        $criteria->compare('resource_key', $this->resource_key);
         $criteria->compare('title', $this->title, true);
         $criteria->compare('url', $this->url, true);
         $criteria->compare('public', $this->public);
@@ -127,7 +127,6 @@ class Resource extends CActiveRecord
         $user_primary_key = Yii::app()->getModule('usercontrol')->get_user_primary_key();
 
         $authorized = false;
-
         try
         {
             $connection = Yii::app()->db;
@@ -137,18 +136,18 @@ class Resource extends CActiveRecord
             INNER JOIN profile p ON p.id = up.profile_id
             INNER JOIN profile_resource pr ON pr.profile_id = p.id
             INNER JOIN resource r ON r.id = pr.resource_id 
-            WHERE u.id = :user_id AND r.key = :key";
+            WHERE u.id = :user_id AND r.resource_key = :key";
 
             $command = $connection->createCommand($sql);
 
-            $command->bindParam(":user_id", $user_id, PDO::PARAM_STR);
+            $command->bindParam(":user_id", $user_id, PDO::PARAM_INT);
             $command->bindParam(":key", $resource_key, PDO::PARAM_INT);
 
             $data = $command->queryScalar();
 
-            (Int) $public = $connection->createCommand("select 1 from resource where key = {$resource_key}")->queryScalar();
+            (Int) $public = $connection->createCommand("select 1 from resource where resource_key = {$resource_key} and private = 0")->queryScalar();
 
-            if (!empty($data) || $public == 1)
+            if (!empty($data) || !empty($public))
             {
                 $authorized = true;
             }
@@ -162,12 +161,12 @@ class Resource extends CActiveRecord
 
     public function make_public($resource_id)
     {
-        Resource::model()->updateByPk($resource_id, array('public' => 1));
+        Resource::model()->updateByPk($resource_id, array('private' => 0));
     }
 
     public function make_private($resource_id)
     {
-        Resource::model()->updateByPk($resource_id, array('public' => 0));
+        Resource::model()->updateByPk($resource_id, array('private' => 1));
     }
 
     public function add_resource_to_profile($resource_id, $profile_id)
@@ -189,5 +188,28 @@ class Resource extends CActiveRecord
     {
         $validated = ProfileResource::model()->exists('profile_id=:profile_id AND resource_id=:resource_id', array(':profile_id' => $profile_id, ':resource_id' => $resource_id));
         return $validated;
+    }
+
+    # method that verify if user is super 
+    public function is_super_user($user_id)
+    {            
+        $user_model=Yii::app()->getModule('usercontrol')->user_model;
+        
+        Yii::import('application.models.' . $user_model);
+        
+        $super_user = false;
+        
+        if (!isset($user_id))
+            return $super_user;
+
+        $user_primary_key = Yii::app()->getModule('usercontrol')->get_user_primary_key();
+        
+        $user = $user_model::model()->find("$user_primary_key = $user_id");
+        
+        if ($user->super_user){
+            $super_user = true;
+        }
+
+        return $super_user;
     }
 }

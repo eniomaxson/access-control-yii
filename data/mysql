@@ -1,0 +1,46 @@
+CREATE  TABLE IF NOT EXISTS profile (
+  id INT NOT NULL AUTO_INCREMENT ,
+  name VARCHAR(45) NOT NULL ,
+  PRIMARY KEY (id)
+)
+ENGINE = InnoDB;
+
+CREATE  TABLE IF NOT EXISTS resource (
+  id INT NOT NULL AUTO_INCREMENT,
+  description VARCHAR(45) NOT NULL,
+  resource_key TINYINT NOT NULL,
+  title VARCHAR(60) NOT NULL,
+  url VARCHAR(45) NOT NULL,
+  private TINYINT NOT NULL,
+  icon VARCHAR(45) NULL,
+  category_id INT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (category_id )  REFERENCES resource ( id )
+)
+ENGINE = InnoDB;
+
+CREATE  TABLE IF NOT EXISTS profile_resource (
+  id INT NOT NULL AUTO_INCREMENT ,
+  resource_id INT NOT NULL ,
+  profile_id INT NOT NULL ,
+  PRIMARY KEY (id) ,
+  FOREIGN KEY ( resource_id ) REFERENCES resource (id),
+  FOREIGN KEY ( profile_id  )  REFERENCES profile (id)
+)
+ENGINE = InnoDB;
+
+CREATE  TABLE IF NOT EXISTS user_profile (
+  id INT NOT NULL AUTO_INCREMENT ,
+  profile_id INT NOT NULL ,
+  user_id INT NOT NULL ,
+  PRIMARY KEY (id) ,
+  FOREIGN KEY (profile_id) REFERENCES profile (id),
+  FOREIGN KEY (user_id) REFERENCES {table_user} ({user_primary_key})
+)
+ENGINE = InnoDB;
+
+ALTER TABLE {table_user} ADD super_user TINYINT DEFAULT 0;
+
+UPDATE {table_user} SET super_user = 1 WHERE {user_primary_key} = {id_super_user};
+
+INSERT INTO resource (description,resource_key,title,url,private) VALUES ('Configuração acesso', 1, 'Configuração acesso', 'usercontrol/', 1)
