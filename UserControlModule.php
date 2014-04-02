@@ -92,7 +92,7 @@ class UserControlModule extends CWebModule
 	public function authorize($user_id, $resource_key)
     {
     	$authorized = true;
-
+    	
 		if (!Resource::model()->is_super_user($user_id))   		   	
         	if (!Resource::model()->authorize($user_id, $resource_key))
         		$authorized = false;

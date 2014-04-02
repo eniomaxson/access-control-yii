@@ -98,5 +98,35 @@ class Profile extends CActiveRecord
         return $arr_user;
     }
 
+    public function update_user_profile($user_id, $profiles)
+    {   
+        UserProfile::model()->deleteAll('user_id = ?', array($user_id) );
+
+        foreach ($profiles as $profile_id) {
+            $user_profile = new UserProfile;
+            $user_profile->profile_id = $profile_id;
+            $user_profile->user_id = $user_id;
+            $user_profile->save(false);
+        }
+    }
+
+    public function find_by_user_id($user_id = 0)
+    {
+        $data_provider= new CActiveDataProvider('Profile', array(
+            'criteria'=>array(
+                'order'=>'name',
+            ),
+            'pagination'=>array(
+                'pageSize'=>10,
+            ),
+        ));
+        return $data_provider;
+    }
+
+    public function check_profile_user($user_id, $profile_id)
+    {
+        $check = UserProfile::model()->exists('user_id = :user_id and profile_id = :profile_id', array(':user_id'=>$user_id, ':profile_id'=>$profile_id) );         
+        return $check;
+    }
 
 }

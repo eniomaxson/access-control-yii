@@ -3,11 +3,21 @@
 class DefaultController extends Controller
 {
 
-    public function actionIndex()
+    public function actionIndex($id = 0)
     {
         $this->module->authorize(Yii::app()->user->id, 1);
+        
+        $data_provider = Profile::model()->find_by_user_id(isset($_GET['user_id']) ?: 0 );
+        
         $model = new Profile;
-        $this->render('index', array('model' => $model));
+
+        $context = array('model' => $model,'data_provider'=>$data_provider);
+
+        if ((int) $id > 0){
+            $context['user_id'] = $id;
+        }
+
+        $this->render('index',$context);
     }
 
     #PermitirRecurso
@@ -97,5 +107,17 @@ class DefaultController extends Controller
         $users = Profile::model()->find_user($term);
 
         echo json_encode($users);
+    }
+
+    public function actionAssociateProfile()
+    {
+        $user_id = (int) $_POST['user_id'];
+        
+        $profiles = $_POST['profiles'];
+
+        if ($user_id > 0 and count($profiles) > 0)
+        {
+            Profile::model()->update_user_profile($user_id, $profiles);
+        }
     }
 }

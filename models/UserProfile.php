@@ -1,6 +1,6 @@
 <?php
 
-class UsuarioPerfil extends CActiveRecord
+class UserProfile extends CActiveRecord
 {
 	public static function model($className=__CLASS__)
 	{
@@ -9,7 +9,7 @@ class UsuarioPerfil extends CActiveRecord
 
 	public function tableName()
 	{
-		return 'user_proofile';
+		return 'user_profile';
 	}
 
 	public function rules()
