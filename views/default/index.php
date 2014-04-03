@@ -218,7 +218,7 @@
             onchange_userid: function()
             {
                 var user_id = ConfigAccess.user_id.val();
-                window.location = '.' + '/' + user_id;
+                window.location = '/siscacex/usercontrol/default/index/id/' + user_id ;
             }
         }
 

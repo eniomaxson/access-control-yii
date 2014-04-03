@@ -28,16 +28,15 @@
 
                 'minLength'=>'2', 
                 ), 
-            'htmlOptions'=>array( 
-                'class'=>'campor', 
-                'placeholder'=>'Name', 
-                            //'required'=>'required', 
-                'class'=>'span12', 
+                'htmlOptions'=>array( 
+                    'class'=>'campor', 
+                    'placeholder'=>'Name', 
+                    'class'=>'span12', 
 
                 ), 
             )); 
             ?>
-                <input type="hidden" value="" id='user_id' />
+                <input type="hidden" value="<?php echo ($user_id > 0) ? $user_id :'' ?>" id='user_id' />
 
             </div>
         <div class="row-fluid" id="profiles">
@@ -46,11 +45,76 @@
             $this->widget('bootstrap.widgets.TbGridView', array(
                 'id'=>'grid-profile',
                 'enablePagination'=>true,
+                'type'=>'striped condensed', 
                 'enableSorting'=>false,
                 'selectableRows'=>2,
                 'template'=>'{items}',
-                'rowCssClassExpression'=> 'Profile::model()->check_profile_user(' . $user_id  .' , $data->id) ? \'success\' : \'\'' ,
+                'rowCssClassExpression'=> 'Profile::model()->check_profile_user(' . $user_id  .' , $data->id) ? \'success\' : \'warning\'' ,
                 'dataProvider'=> $data_provider,
+                'columns'=>array(
+                    array('name'=>'id',),
+                    array('name'=>'name'),
+                    array(
+                        'class'=>'CButtonColumn',
+                        'template'=>'{add}{rem}',
+                        'buttons'=>array(
+                            'add'=>array(
+                                'label'=>'',
+                                'options'=>array(
+                                    'class'=>'icon-ok',
+                                    'rel'=>'tooltip',
+                                    'title'=>'Adicionar',
+                                    'onClick'=>'(function(t){
+                                        var profile_id = $(t).parent().parent().children(":first-child").text();
+                                        var user_id    =  $("#user_id").val();
+                                        if (user_id == ""){
+                                            alert("Selecione um usuário!")
+                                            return false;
+                                        }
+                                        $.ajax({ 
+                                            type: "POST", 
+                                            data: {user_id: user_id, profile_id: profile_id}, 
+                                            url: "'.CController::createUrl("associateProfile").'", 
+                                            success: function(e){ 
+                                                $.fn.yiiGridView.update("grid-profile"); 
+                                            }, 
+                                            error : function(e){ 
+                                                $("#myerrordiv").html(e.responseText).show(); 
+                                            } 
+                                        }); 
+                                    })(this)',
+                                ),
+                            ),
+                            'rem'=>array(
+                                'label'=>'',
+                                'options'=>array(
+                                    'class'=>'icon-trash',
+                                    'rel'=>'tooltip',
+                                    'title'=>'Adicionar',
+                                    'onClick'=>'(function(t){
+                                        var profile_id = $(t).parent().parent().children(":first-child").text();
+                                        var user_id    =  $("#user_id").val();
+                                        if (user_id == ""){
+                                            alert("Selecione um usuário!")
+                                            return false;
+                                        }
+                                        $.ajax({ 
+                                            type: "POST", 
+                                            data: {user_id: user_id, profile_id: profile_id}, 
+                                            url: "'.CController::createUrl("disassociateProfile").'", 
+                                            success: function(e){ 
+                                                $.fn.yiiGridView.update("grid-profile"); 
+                                            }, 
+                                            error : function(e){ 
+                                                $("#myerrordiv").html(e.responseText).show(); 
+                                            } 
+                                        }); 
+                                    })(this)',
+                                ),
+                            ),
+                        ),
+                    )
+                ),
             ));
 
         ?>

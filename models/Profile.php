@@ -21,7 +21,9 @@ class Profile extends CActiveRecord
             array('name', 'required'),
             array('id', 'numerical', 'integerOnly' => true),
             array('name', 'length', 'max' => 45),
+            array('name', 'unique'),
             array('id, name, copy_from', 'safe', 'on' => 'search'),
+
             );
     }
 
@@ -56,7 +58,7 @@ class Profile extends CActiveRecord
     }
 
     protected function afterSave()
-    {
+    {   
         if ($this->copy_from > 0){
             $this->set_permission_profile_from();
         }
@@ -66,11 +68,10 @@ class Profile extends CActiveRecord
     protected function set_permission_profile_from()
     {
         $base_profile = Profile::model()->findByPk($this->copy_from);
-        
         foreach ($base_profile->profile_resources as $value) {
             $model = new ProfileResource;
             
-            $model->attributes=array('profile_id'=>$this->id,'resource_id'=>$value->resource_id);
+            $model->attributes=array('profile_id'=> $this->find(array('order'=>'id desc'))->id ,'resource_id'=>$value->resource_id);
 
             if (!$model->exists('profile_id=:p and resource_id=:r', array(':r'=>$model->resource_id,':p'=>$model->profile_id)))
                 $model->save(false);

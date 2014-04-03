@@ -68,8 +68,10 @@ class DefaultController extends Controller
             
             if ($model->save())
                 $this->redirect(array('index'));
-            else
-                print_r($model->getErrors());
+            
+            $data_provider = Profile::model()->find_by_user_id( 0 );
+            $context = array('model' => $model,'data_provider'=>$data_provider);   
+            $this->render('index', $context);  
         }
     }
 
@@ -98,8 +100,10 @@ class DefaultController extends Controller
                 $this->redirect(array('index'));
 
         }
-
-        $this->render('index',array('model'=>$model));
+        
+        $data_provider = Profile::model()->find_by_user_id( 0 );
+        $context = array('model' => $model,'data_provider'=>$data_provider);   
+        $this->render('index', $context);
     }
 
     public function actionFindUser($term)
@@ -111,13 +115,41 @@ class DefaultController extends Controller
 
     public function actionAssociateProfile()
     {
+        if (!isset($_POST['user_id']) and !isset($_POST['profile_id']))
+            return false;
+
         $user_id = (int) $_POST['user_id'];
         
-        $profiles = $_POST['profiles'];
+        $profile_id = (int) $_POST['profile_id'];
+        
+        if ($user_id == 0 and $profile_id == 0)
+            return false;
+        
+        if(UserProfile::model()->exists('user_id=:user_id and profile_id=:profile_id', array(':user_id'=>$user_id,':profile_id'=>$profile_id)))
+            return false;
 
-        if ($user_id > 0 and count($profiles) > 0)
-        {
-            Profile::model()->update_user_profile($user_id, $profiles);
-        }
-    }
+        $user_profile = new UserProfile;
+        $user_profile->user_id = $user_id;
+        $user_profile->profile_id = $profile_id;
+        $user_profile->save(false);
+    }    
+
+    public function actionDisassociateProfile()
+    {
+        if (!isset($_POST['user_id']) and !isset($_POST['profile_id']))
+            return false;
+
+        $user_id = (int) $_POST['user_id'];
+    
+        $profile_id = (int) $_POST['profile_id'];
+        
+        if ($user_id == 0 and $profile_id == 0)
+            return false;
+
+        $user_profile = UserProfile::model()->find('user_id=:user_id and profile_id=:profile_id', array(':user_id'=>$user_id,':profile_id'=>$profile_id));
+        
+        if($user_profile)
+            $user_profile->delete();            
+    }    
+    
 }
