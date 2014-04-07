@@ -3,7 +3,7 @@
 class DefaultController extends Controller
 {
 
-    public function actionIndex($id = 0)
+    public function actionIndex($id = 0, $profile_id = 0)
     {
         $this->module->authorize(Yii::app()->user->id, 1);
         
@@ -14,50 +14,59 @@ class DefaultController extends Controller
         $context = array('model' => $model,'data_provider'=>$data_provider);
 
         if ((int) $id > 0){
-            $context['user_id'] = $id;
+            $context['user_id'] =  $id;
+            $context['user_name'] = $this->module->get_user_name($id);
         }
+        
+        if ((int) $profile_id > 0)
+            $context['profile_id'] = $profile_id;
 
         $this->render('index',$context);
     }
 
     #PermitirRecurso
-    public function actionUpdateResource()
+    public function actionGrantResource()
     {
-        $profile_id = (Int) $_POST['profile_id'] ?: false;
-        
-        $resources = $_POST['resource'];
+        if (!isset($_POST['profile_id']) and !isset($_POST['resource_id']))
+            return false;
 
-        $resource_id = array_keys($resources);
-        $permitted = array_values($resources);
+        $profile_id = (Int) $_POST['profile_id'];
         
-        $resource = new Resource;
+        $resource_id  = (Int) $_POST['resource_id'];
 
-        if ($profile_id)
-        {
-            if ($permitted[0] === "true")
-                $resource->add_resource_to_profile($resource_id[0], $profile_id);
-            else
-                $resource->remove_resource_from_profile($resource_id[0], $profile_id);
-        } else
-        {
-            if ($permitted[0] === "true")
-                Resource::model()->make_public($resource_id);
-             else
-                Resource::model()->make_private($resource_id);
-        }
+        $alredy_exists = ProfileResource::model()->exists('profile_id=:profile_id and resource_id=:resource_id', array(':profile_id'=>$profile_id, ':resource_id'=>$resource_id));
+
+        if (!$alredy_exists)
+            Resource::model()->add_resource_to_profile($resource_id,$profile_id);
     }
     
-    #AtualizaGradeRecurso
-    public function actionUpdateGridResource()
+        #PermitirRecurso
+    public function actionRevokeResource()
     {
-        $profile = Profile::model()->findByPk($_POST['profile']);
+        if (!isset($_POST['profile_id']) and !isset($_POST['resource_id']))
+            return false;
+        
+        $profile_id = (Int) $_POST['profile_id'];
+        
+        $resource_id  = (Int) $_POST['resource_id'];
 
-        $grid = $this->renderPartial('_grid_resource', array('profile' => $profile), true);
+        $profile_resource = ProfileResource::model()->find('profile_id=:profile_id and resource_id=:resource_id', array(':profile_id'=>$profile_id, ':resource_id'=>$resource_id));
 
-        echo $grid;
+        if ($profile_resource)
+            $profile_resource->delete();
     }
 
-    #actionNovoPerfil
+    public function actionMakeResourcePublic()
+    {
+        $resource_id = $_POST['resource_id'];
+        $resource=Resource::model()->findByPk($resource_id);
+        
+        if ($resource->private)
+           $resource->make_public();
+        else
+           $resource->make_private();
+    }
+
     public function actioncreateProfile()
     {
         if (isset($_POST['Profile']))
@@ -80,8 +89,7 @@ class DefaultController extends Controller
     {
         try
         {
-            Profile::model()->deleteByPk($profile_id);
-
+            $profile = Profile::model()->findByPk($profile_id)->delete();
         } catch (Exception $e)
         {
             throw new CHttpException(500, 'Não foi possivél concluir a transação, registro possui dependentes!');
@@ -90,6 +98,9 @@ class DefaultController extends Controller
 
     public function actionUpdateProfile($id){
         
+        if (!isset($id))
+            $this->redirect(array('index'));
+
         $model = Profile::model()->findByPk($id);
 
         if (isset($_POST['Profile']))

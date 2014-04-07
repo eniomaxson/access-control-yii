@@ -99,18 +99,6 @@ class Profile extends CActiveRecord
         return $arr_user;
     }
 
-    public function update_user_profile($user_id, $profiles)
-    {   
-        UserProfile::model()->deleteAll('user_id = ?', array($user_id) );
-
-        foreach ($profiles as $profile_id) {
-            $user_profile = new UserProfile;
-            $user_profile->profile_id = $profile_id;
-            $user_profile->user_id = $user_id;
-            $user_profile->save(false);
-        }
-    }
-
     public function find_by_user_id($user_id = 0)
     {
         $data_provider= new CActiveDataProvider('Profile', array(

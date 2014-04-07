@@ -1,7 +1,6 @@
 <div id="modal-associate-profile-form" class="modal <?php echo $user_id > 0 ? 'show': 'hide' ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
-       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-       <h4 class="blue bigger">Usuário perfíl</h4>
+       <h4 class="blue bigger"> <?php echo  isset($user_name) ? 'Usuário: ' . ucfirst( $user_name ): 'Perfis de Acesso' ; ?> </h4>
    </div>
 
    <?php $form = $this->beginWidget('CActiveForm',  array(
@@ -40,14 +39,14 @@
 
             </div>
         <div class="row-fluid" id="profiles">
-            
-        <?php 
+           
+        <?php
+
             $this->widget('bootstrap.widgets.TbGridView', array(
                 'id'=>'grid-profile',
                 'enablePagination'=>true,
                 'type'=>'striped condensed', 
                 'enableSorting'=>false,
-                'selectableRows'=>2,
                 'template'=>'{items}',
                 'rowCssClassExpression'=> 'Profile::model()->check_profile_user(' . $user_id  .' , $data->id) ? \'success\' : \'warning\'' ,
                 'dataProvider'=> $data_provider,
@@ -142,9 +141,7 @@
             </table> -->
         </div>
         <div class="modal-footer">
-            <a href='<?php echo $this->createUrl('index'); ?>'class="btn" role='button' id='btn-close-profile'>Cancelar</a>
-
-            <input class="btn btn-primary" id="btn-profile-associate" type="submit" value="salvar" />
+            <a href='<?php echo $this->createUrl('index'); ?>'class="btn btn-danger" role='button' id='btn-close-profile'>Fechar</a>
         </div>
         <?php $this->endWidget(); ?>
     </div>

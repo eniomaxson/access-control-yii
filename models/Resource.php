@@ -24,11 +24,11 @@ class Resource extends CActiveRecord
     public function rules()
     {
         return array(
-            array('name, resource_key, title, url, public', 'required'),
-            array('key, public, category_id', 'numerical', 'integerOnly' => true),
-            array('name, url, icon', 'length', 'max' => 45),
+            array('description, resource_key, title, url, private', 'required'),
+            array('key, private, category_id', 'numerical', 'integerOnly' => true),
+            array('description, url, icon', 'length', 'max' => 45),
             array('title', 'length', 'max' => 60),
-            array('id, name, key, title, url, public, category_id', 'safe', 'on' => 'search'),
+            array('id, description, key, title, url, private, category_id', 'safe', 'on' => 'search'),
             );
     }
 
@@ -44,11 +44,11 @@ class Resource extends CActiveRecord
     {
         return array(
             'id' => 'ID',
-            'name' => 'Nome',
+            'description' => 'Descrição',
             'resource_key' => 'Chave',
             'title' => 'Titulo',
             'url' => 'Link',
-            'public' => 'Publico',
+            'private' => 'Publico',
             'icon' => 'Icone',
             'category_id' => 'Recurso Categoria',
             );
@@ -59,11 +59,11 @@ class Resource extends CActiveRecord
         $criteria = new CDbCriteria;
 
         $criteria->compare('id', $this->id);
-        $criteria->compare('name', $this->name, true);
+        $criteria->compare('description', $this->description, true);
         $criteria->compare('resource_key', $this->resource_key);
         $criteria->compare('title', $this->title, true);
         $criteria->compare('url', $this->url, true);
-        $criteria->compare('public', $this->public);
+        $criteria->compare('private', $this->private);
         $criteria->compare('icon', $this->icon, true);
         $criteria->compare('category_id', $this->category_id);
 
@@ -136,7 +136,7 @@ class Resource extends CActiveRecord
             INNER JOIN profile p ON p.id = up.profile_id
             INNER JOIN profile_resource pr ON pr.profile_id = p.id
             INNER JOIN resource r ON r.id = pr.resource_id 
-            WHERE u.id = :user_id AND r.resource_key = :key";
+            WHERE u.{$user_primary_key} = :user_id AND r.resource_key = :key";
 
             $command = $connection->createCommand($sql);
 
@@ -153,20 +153,20 @@ class Resource extends CActiveRecord
             }
         } catch (Exception $exc)
         {
-            throw new CHttpException(500, 'Aconteceu um problema interno.');
+            throw new CHttpException(500, 'Falha interna!');
         }
 
         return $authorized;
     }
 
-    public function make_public($resource_id)
+    public function make_public()
     {
-        Resource::model()->updateByPk($resource_id, array('private' => 0));
+        $this->updateByPk($this->id, array('private' => 0));
     }
 
-    public function make_private($resource_id)
+    public function make_private()
     {
-        Resource::model()->updateByPk($resource_id, array('private' => 1));
+        $this->updateByPk($this->id, array('private' => 1));
     }
 
     public function add_resource_to_profile($resource_id, $profile_id)
@@ -174,13 +174,6 @@ class Resource extends CActiveRecord
         $model = new ProfileResource();
         $model->attributes = array('profile_id' => $profile_id, 'resource_id' => $resource_id);
         $model->save(false);
-    }
-
-    public function remove_resource_from_profile($resource_id, $profile_id)
-    {    
-        $deleted = ProfileResource::model()->deleteAll('profile_id = :profile_id and resource_id = :resource_id',
-            array(':profile_id' => (Int) $profile_id, ':resource_id' => (Int) $resource_id ));
-        return $deleted;
     }
 
     //validaRecursoPerfil

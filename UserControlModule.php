@@ -101,4 +101,12 @@ class UserControlModule extends CWebModule
         	throw new CHttpException(403, 'Permisão negada para acessar este recurso!');
     }
 
+    public function get_user_name($user_id)
+    {
+    	if (empty($user_id))
+    		return false;
+    	$user_model = $this->user_model;
+    	$find = $this->user_find;
+    	return $user_model::model()->find("{$this->user_primary_key}=$user_id")->$find;
+    }
 }
