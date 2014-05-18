@@ -52,8 +52,4 @@ CREATE  TABLE IF NOT EXISTS user_profile (
 ENGINE = InnoDB;
 
 INSERT INTO resource (description,resource_key,title,url,private) VALUES ('Configuração acesso', 1, 'Configuração acesso', 'usercontrol/', 1);
-INSERT INTO resource (description,resource_key,title,url,private) VALUES ();
-INSERT INTO resource (description,resource_key,title,url,private) VALUES ();
-INSERT INTO resource (description,resource_key,title,url,private) VALUES ();
-INSERT INTO resource (description,resource_key,title,url,private) VALUES ();
-INSERT INTO user (first_name,last_name,username, password, super_user) VALUES ('Admin', 'System', 'admin','b47ea11a562716ef82316c867286b8a5', 1);
+INSERT INTO user (first_name,last_name,username, password, super_user) VALUES ('Admin', 'System', 'admin','21232f297a57a5a743894a0e4a801fc3', 1);
