@@ -2,9 +2,9 @@
 
 class Resource extends CActiveRecord
 {
-    private  $_key = array(
-        'cadastro_cliente' => 1,
-    );
+    public static  $_key = [
+        'acesso' => 1,
+    ];
     
     public function getKey($index)
     {
@@ -98,9 +98,9 @@ class Resource extends CActiveRecord
                 
                 INNER JOIN user_profile up ON up.profile_id = p.id
                 
-                INNER JOIN {$table_user} u ON u.{$user_primary_key} = up.user_id
+                INNER JOIN user u ON u.id = up.user_id
                 
-                WHERE u.{$user_primary_key} = :user_id  ORDER BY 'r.title'";
+                WHERE u.id = :user_id  ORDER BY 'r.title'";
             }
 
             $command = $con->createCommand($sql);
@@ -122,21 +122,18 @@ class Resource extends CActiveRecord
 
     public function authorize($user_id, $resource_key)
     {
-        $table_user = Yii::app()->getModule('usercontrol')->get_table_user();
-        
-        $user_primary_key = Yii::app()->getModule('usercontrol')->get_user_primary_key();
 
         $authorized = false;
         try
         {
             $connection = Yii::app()->db;
 
-            $sql = "SELECT 1 FROM {$table_user} u 
-            INNER JOIN user_profile up ON up.user_id = u.{$user_primary_key}
+            $sql = "SELECT 1 FROM user u 
+            INNER JOIN user_profile up ON up.user_id = u.id
             INNER JOIN profile p ON p.id = up.profile_id
             INNER JOIN profile_resource pr ON pr.profile_id = p.id
             INNER JOIN resource r ON r.id = pr.resource_id 
-            WHERE u.{$user_primary_key} = :user_id AND r.resource_key = :key";
+            WHERE u.id = :user_id AND r.resource_key = :key";
 
             $command = $connection->createCommand($sql);
 
@@ -186,23 +183,20 @@ class Resource extends CActiveRecord
     # method that verify if user is super 
     public function is_super_user($user_id)
     {            
-        $user_model=Yii::app()->getModule('usercontrol')->user_model;
+        $super_user = false;                
         
-        Yii::import('application.models.' . $user_model);
-        
-        $super_user = false;
-        
-        if (!isset($user_id))
-            return $super_user;
+        try{
+            $user = User::model()->findByPk($user_id);
+            
+            if($user){    
+                if($user->super_user)
+                    $super_user = true;
+            }
 
-        $user_primary_key = Yii::app()->getModule('usercontrol')->get_user_primary_key();
-        
-        $user = $user_model::model()->find("$user_primary_key = $user_id");
-        
-        if ($user->super_user){
-            $super_user = true;
+        }catch(Exception $e){
+            $super_user = false;
         }
-
+        
         return $super_user;
     }
 }

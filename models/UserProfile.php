@@ -23,20 +23,18 @@ class UserProfile extends CActiveRecord
 
 	public function relations()
 	{
-		$user_model = Yii::app()->getModule('usercontrol')->get_user_model();
-		
 		return array(
-			'profile' => array(self::BELONGS_TO, 'Perfil', 'profile_id'),
-			'user' => array(self::BELONGS_TO,  $user_model, 'user_id'),
+			'profile' => array(self::BELONGS_TO, 'Profile', 'profile_id'),
+			'user' => array(self::BELONGS_TO,  'User', 'user_id'),
 		);
 	}
 
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
+			'id' => 'Cod.',
 			'profile_id' => 'Perfil',
-			'user_id' => 'Usuario',
+			'user_id' => 'Usuário',
 		);
 	}
 

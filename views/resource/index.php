@@ -1,23 +1,33 @@
-<div class="page-content">
-<div class="page-header position-relative">
-        <h2>
-            Configuração de Acesso
-        </h2>
-        <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                Opções
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a href="#modal-profile-form" role="button" data-toggle="modal"><i class="icon-file"></i> Novo Perfil </a></li>
-                <li><a href="#modal-associate-profile-form" role="button" data-toggle="modal"><i class="icon-tasks"></i> Associar Perfil </a></li>
-            </ul>
-        </div>  
-    </div>
+<?php
 
-    <div id="dv-msg" class="span11"></div>
+$this->breadcrumbs=array(
+    'Recursos'=>array('index'),
+    'Index'
+    );
+?>
 
-    <div class="row-fluid">
+
+<h3>
+    <?php echo $this->pageTitle; ?>
+</h3>
+
+<hr />
+
+<div class="btn-group">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        Opções
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="<?php echo CController::createUrl('profile/') ?>"><i class="icon-file"></i> Perfil </a></li>
+        <li><a href="<?php echo CController::createUrl('user/') ?>" ><i class="icon-user"></i> Usuário </a></li>
+        <li><a href="#modal-associate-profile-form" role="button" data-toggle="modal"><i class="icon-tasks"></i> Associar Perfil </a></li>
+    </ul>
+</div>  
+
+<div id="dv-msg" class="span11"></div>
+
+    <div class="row">
         <div class="span4">
             
             <?php
@@ -152,8 +162,9 @@
 </div>
 
 <?php $this->renderPartial('_profile_form', array('model' => $model)); ?>
-<?php $this->renderPartial('_progress_dialog', array()); ?>
-<?php $this->renderPartial('_profile_associate', array('model'=>$model,'user_name'=>  isset($user_name) ? $user_name : null ,'data_provider'=>$data_provider, 'user_id'=> isset($user_id) ? $user_id : 0 )); ?>
+<?php //$this->renderPartial('_progress_dialog', array()); ?>
+<?php $this->renderPartial('_profile_associate', array('model'=>$model, 'user'=> isset($user) ? $user : null ,'data_provider'=>$data_provider)); ?>
+
 
 <script>
     (function($) {
@@ -170,18 +181,18 @@
 
             onclick_row_profile: function() {
                 ConfigAccess.profile_id = $(this).children(":first-child").text();
-                window.location = '/siscacex/usercontrol/default/index/profile_id/' + ConfigAccess.profile_id;
+                window.location = '/siscacex/usercontrol/resource/index/profile_id/' + ConfigAccess.profile_id;
             },
 
             dblclick_row_profile: function(){
                 ConfigAccess.profile_id = $(this).children(":first-child").text();
-                window.location = "/siscacex/usercontrol/default/updateProfile/id/" + ConfigAccess.profile_id;
+                window.location = "/siscacex/usercontrol/profile/update/id/" + ConfigAccess.profile_id;
             },      
 
             onchange_userid: function()
             {
                 var user_id = ConfigAccess.user_id.val();
-                window.location = '/siscacex/usercontrol/default/index/id/' + user_id ;
+                window.location = '/siscacex/usercontrol/resource/index/user_id/' + user_id ;
             },
             onclick_remove_profile: function()
             {
@@ -193,12 +204,12 @@
             {
                 $.ajax({
                     type: 'get',
-                    url: '<?php echo $this->createUrl('removeProfile'); ?>',
-                    data: {profile_id: <?php echo isset($model->id) ? $model->id : 0 ; ?>},
+                    url: '<?php echo $this->createUrl('profile/delete'); ?>',
+                    data: {id: <?php echo isset($model->id) ? $model->id : 0 ; ?>},
                     success: function(data)
                     {
                         alert('Item Excluido com sucesso!');
-                        window.location = '/siscacex/usercontrol/default/';
+                        window.location = '/siscacex/usercontrol/resource/index';
                     },
                     beforeSend: function() {
                         $('#progres-dialog').dialog('open');

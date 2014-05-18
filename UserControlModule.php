@@ -2,13 +2,10 @@
 
 class UserControlModule extends CWebModule
 {
-	public $table_user;
-	public $user_primary_key;
-	public $user_model;
-	public $user_find;
-	public $id_super_user;
 	public $install;
-
+	public $brand;
+	public $defaultController = 'resource';
+	
 	public function init()
 	{
 		$this->setImport(array(
@@ -65,48 +62,27 @@ class UserControlModule extends CWebModule
 		if($connection->getDriverName() == 'pgsql')
 			$file_sql = file_get_contents($sql_path .'/data/pgsql');
 
-		$find  = array('{table_user}','{user_primary_key}', '{id_super_user}');
-		$replace = array($this->table_user, $this->user_primary_key, $this->id_super_user);
-
-		$file_sql = str_replace($find, $replace, $file_sql);
-		
 		return $file_sql;
 	}
-
-	public function get_table_user()
-	{
-		return $this->table_user;
-	}
-
-	public function get_user_primary_key()
-	{
-		return $this->user_primary_key;
-	}
-	public function get_user_model()
-	{
-		return $this->user_model;
-	}
-	
-	# method responsible for validate one user for one resource that must return true or false
 
 	public function authorize($user_id, $resource_key)
     {
     	$authorized = true;
     	
-		if (!Resource::model()->is_super_user($user_id))   		   	
+		if (!Resource::model()->is_super_user($user_id))
+		{
         	if (!Resource::model()->authorize($user_id, $resource_key))
-        		$authorized = false;
+        	{
+        		$authorized = false;			
+        	}
+		}  		   	
 
         if (!$authorized)
         	throw new CHttpException(403, 'Permisão negada para acessar este recurso!');
     }
 
-    public function get_user_name($user_id)
+    public function get_default_view()
     {
-    	if (empty($user_id))
-    		return false;
-    	$user_model = $this->user_model;
-    	$find = $this->user_find;
-    	return $user_model::model()->find("{$this->user_primary_key}=$user_id")->$find;
+    	return $this->getViewPath() . '/default/base';
     }
 }

@@ -1,6 +1,6 @@
-<div id="modal-associate-profile-form" class="modal <?php echo $user_id > 0 ? 'show': 'hide' ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="modal-associate-profile-form" class="modal <?php echo isset($user) ? 'show': 'hide' ?>" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-header">
-       <h4 class="blue bigger"> <?php echo  isset($user_name) ? 'Usuário: ' . ucfirst( $user_name ): 'Perfis de Acesso' ; ?> </h4>
+       <h3> <?php echo isset($user) ? 'Usuário: ' .  ucfirst( $user->username )   : 'Perfis de Acesso' ; ?> </h3>
    </div>
 
    <?php $form = $this->beginWidget('CActiveForm',  array(
@@ -14,7 +14,7 @@
          $this->widget('zii.widgets.jui.CJuiAutoComplete', array( 
             'id'=>'usuario', 
             'name'=>'usuario-find',  
-            'sourceUrl'=>$this->createUrl('findUser'), 
+            'sourceUrl'=>$this->createUrl('user/findUser'), 
             'options'=>array( 
                 'autofocus'=>true, 
                 'delay'=>50, 
@@ -25,22 +25,24 @@
                     return true; 
                 }", 
 
-                'minLength'=>'2', 
+                'minLength'=>3, 
                 ), 
                 'htmlOptions'=>array( 
                     'class'=>'campor', 
-                    'placeholder'=>'Name', 
+                    'placeholder'=>'Login', 
                     'class'=>'span12', 
 
                 ), 
             )); 
             ?>
-                <input type="hidden" value="<?php echo ($user_id > 0) ? $user_id :'' ?>" id='user_id' />
+            
+            <input type="hidden" value="<?php echo isset($user) ? $user->id :'' ?>" id='user_id' />
 
             </div>
         <div class="row-fluid" id="profiles">
            
         <?php
+            $user_id = isset($user) ? $user->id : 0;
 
             $this->widget('bootstrap.widgets.TbGridView', array(
                 'id'=>'grid-profile',
@@ -48,7 +50,7 @@
                 'type'=>'striped condensed', 
                 'enableSorting'=>false,
                 'template'=>'{items}',
-                'rowCssClassExpression'=> 'Profile::model()->check_profile_user(' . $user_id  .' , $data->id) ? \'success\' : \'warning\'' ,
+                'rowCssClassExpression'=> 'Profile::model()->check_profile_user(' . $user_id . ' , $data->id) ? \'success\' : \'warning\'' ,
                 'dataProvider'=> $data_provider,
                 'columns'=>array(
                     array('name'=>'id',),
@@ -117,31 +119,11 @@
             ));
 
         ?>
-<!--             <table class="table table-striped">
-                <thead>
-                    <th>
-                        Perfil
-                    </th>
-                    <th>#</th>
-                    <th style="display: none;"></th>
-                </thead>
-                <tbody>
-                    <?php// foreach ($model->findAll() as $profile): ?>
-                        <tr>
-                            <td class="span5"><?php// echo $profile->name; ?></td>
-                            <td class="span1"> 
-                                <label>
-                                    <input type="checkbox" name=''><span class="lbl"></span>
-                                </label> 
-                            </td>
-                            <td style="display: none"><?php// echo $profile->id; ?></td>
-                        </tr>
-                    <?php// endforeach; ?>
-                </tbody>
-            </table> -->
+
         </div>
         <div class="modal-footer">
             <a href='<?php echo $this->createUrl('index'); ?>'class="btn btn-danger" role='button' id='btn-close-profile'>Fechar</a>
         </div>
         <?php $this->endWidget(); ?>
     </div>
+</div>
